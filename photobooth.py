@@ -599,19 +599,21 @@ class Photobooth:
         # so there is a max. frequency of 1 buttonclick per second
         if (time_now - self.time_stamp_button1) >= 1:
             self.button1active = True
-            # from state start -> choose layout 1
-            if self.state == "Start":
-                logging.debug("State == Start -> Set Photonumbers")
-                self.MaxPhotos = self.layout[0].piccount
-                self.current_Layout = 1
-                self.photonumber = 1
+            try:
+                # from state start -> choose layout 1
+                if self.state == "Start":
+                    logging.debug("State == Start -> Set Photonumbers")
+                    self.MaxPhotos = self.layout[0].piccount
+                    self.current_Layout = 1
+                    self.photonumber = 1
 
-            logging.debug("self.button1 start")
-            self.Button1()
-            logging.debug("self.button1 ready -> Set new TimeStamp")
-            self.time_stamp_button1 = time.time()
-            self.button1active = False
-            self.button2active = False
+                logging.debug("self.button1 start")
+                self.Button1()
+            finally:
+                logging.debug("self.button1 ready -> Set new TimeStamp")
+                self.time_stamp_button1 = time.time()
+                self.button1active = False
+                self.button2active = False
         else:
             logging.debug("ignoring button")        
 
@@ -639,32 +641,34 @@ class Photobooth:
         # so there is a max. frequency of 1 buttonclick per second
         if (time_now - self.time_stamp_button2) >= 1:
             self.button2active = True
-            # from state start -> choose layout 2
-            if self.state == "Start":
-                logging.debug("State == Start -> Set Photonumbers")
-                self.MaxPhotos = self.layout[1].piccount
-                self.current_Layout = 2
-                self.photonumber = 1
+            try:
+                # from state start -> choose layout 2
+                if self.state == "Start":
+                    logging.debug("State == Start -> Set Photonumbers")
+                    self.MaxPhotos = self.layout[1].piccount
+                    self.current_Layout = 2
+                    self.photonumber = 1
 
-            # from state Show Photo -> increase Photonumber
-            if self.state == 'ShowPhoto':
-                logging.debug("State == ShowPhoto -> increase Photonumber")
-                self.photonumber += 1
+                # from state Show Photo -> increase Photonumber
+                if self.state == 'ShowPhoto':
+                    logging.debug("State == ShowPhoto -> increase Photonumber")
+                    self.photonumber += 1
 
-                # last photo reached
-                if self.photonumber > self.MaxPhotos:
-                    logging.debug("maxpics")
-                    self.MaxPics()
-                    logging.debug("self.button2 ready -> Set new TimeStamp")
-                    self.time_stamp_button2 = time.time()
-                    return
+                    # last photo reached
+                    if self.photonumber > self.MaxPhotos:
+                        logging.debug("maxpics")
+                        self.MaxPics()
+                        logging.debug("self.button2 ready -> Set new TimeStamp")
+                        self.time_stamp_button2 = time.time()
+                        return
 
-            logging.debug("self.button2 start")
-            self.Button2()
-            logging.debug("self.button2 ready -> Set new TimeStamp")
-            self.time_stamp_button2 = time.time()
-            self.button1active = False
-            self.button2active = False
+                logging.debug("self.button2 start")
+                self.Button2()
+            finally:
+                logging.debug("self.button2 ready -> Set new TimeStamp")
+                self.time_stamp_button2 = time.time()
+                self.button1active = False
+                self.button2active = False
         else:
             logging.debug("ignoring button")        
 
