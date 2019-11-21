@@ -573,15 +573,11 @@ class Photobooth:
     # Button1 callback function. Actions depends on state of the Photobooth state machine
 
     def Button1pressed(self, event):
-        logging.debug(f"Button1pressed, actvie = {self.button1active}")
+        logging.debug(f"Button1pressed, active = {self.button1active}")
         time_now = time.time()
 
-        #if button was pressed
         if self.button1active:
-            if (time_now - self.time_stamp_button1) < 3.0:
-                return
-
-        self.button1active = True
+            return
 
         # wait until button is released
         while not GPIO.input(self.pin_button_left):
@@ -591,8 +587,6 @@ class Photobooth:
                 subprocess.call("sudo poweroff", shell=True)
                 return
 
-        time.sleep(0.2)
-
         # if in PowerOnState - ignore Buttons
         if self.state == "PowerOn":
             return
@@ -601,9 +595,10 @@ class Photobooth:
         if self.state == "PrintCard":
             return
 
-        # debounce the button
-        if (time_now - self.time_stamp_button1) >= 0.5:
-            logging.debug("Debounce time reached")
+        # ignore buttons enqueued during processing
+        # so there is a max. frequency of 1 buttonclick per second
+        if (time_now - self.time_stamp_button1) >= 1:
+            self.button1active = True
             # from state start -> choose layout 1
             if self.state == "Start":
                 logging.debug("State == Start -> Set Photonumbers")
@@ -617,6 +612,8 @@ class Photobooth:
             self.time_stamp_button1 = time.time()
             self.button1active = False
             self.button2active = False
+        else:
+            logging.debug("ignoring button")        
 
     # Button2 callback function. Actions depends on state of the Photobooth state machine
     def Button2pressed(self, event):
@@ -624,17 +621,11 @@ class Photobooth:
         time_now = time.time()
 
         if self.button2active:
-            if (time_now - self.time_stamp_button2) < 3.0:
-                logging.debug("Button2pressed within 3 sec.")
-                return
-
-        self.button2active = True
+            return
 
         # wait until button is released
         while not GPIO.input(self.pin_button_right):
             time.sleep(0.1)
-
-        time.sleep(0.2)
 
         # if in PowerOnState - ignore Buttons
         if self.state == "PowerOn":
@@ -644,10 +635,10 @@ class Photobooth:
         if self.state == "PrintCard":
             return
 
-        # debounce the button
-        if (time_now - self.time_stamp_button2) >= 0.5:
-            logging.debug("Debounce time reached")
-
+        # ignore buttons enqueued during processing
+        # so there is a max. frequency of 1 buttonclick per second
+        if (time_now - self.time_stamp_button2) >= 1:
+            self.button2active = True
             # from state start -> choose layout 2
             if self.state == "Start":
                 logging.debug("State == Start -> Set Photonumbers")
@@ -674,6 +665,8 @@ class Photobooth:
             self.time_stamp_button2 = time.time()
             self.button1active = False
             self.button2active = False
+        else:
+            logging.debug("ignoring button")        
 
     # create a small preview of the layout for the first screen
     def createCardLayoutPreview(self):
