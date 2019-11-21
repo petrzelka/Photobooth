@@ -573,7 +573,7 @@ class Photobooth:
     # Button1 callback function. Actions depends on state of the Photobooth state machine
 
     def Button1pressed(self, event):
-        logging.debug("Button1pressed")
+        logging.debug(f"Button1pressed, actvie = {self.button1active}")
         time_now = time.time()
 
         #if button was pressed
@@ -620,11 +620,12 @@ class Photobooth:
 
     # Button2 callback function. Actions depends on state of the Photobooth state machine
     def Button2pressed(self, event):
-        logging.debug("Button2pressed")
+        logging.debug(f"Button2pressed, active = {self.button2active}")
         time_now = time.time()
 
         if self.button2active:
             if (time_now - self.time_stamp_button2) < 3.0:
+                logging.debug("Button2pressed within 3 sec.")
                 return
 
         self.button2active = True
