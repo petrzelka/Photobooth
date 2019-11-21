@@ -302,11 +302,9 @@ class Photobooth:
         GPIO.add_event_detect(self.pin_button_left, GPIO.FALLING, callback=self.Button1pressed, bouncetime=500)
 
         logging.debug("Set TimeStamp for Buttons")
-        self.time_stamp_button1 = time.time()
-        self.time_stamp_button2 = time.time()
+        self.time_stamp_button = time.time()
 
-        self.button1active = False
-        self.button2active = False
+        self.button_active = False
 
         logging.debug("Setup Camera")
         # Setup Camera
@@ -573,10 +571,11 @@ class Photobooth:
     # Button1 callback function. Actions depends on state of the Photobooth state machine
 
     def Button1pressed(self, event):
-        logging.debug(f"Button1pressed, active = {self.button1active}")
+        logging.debug(f"Button1pressed, active = {self.button_active}")
         time_now = time.time()
 
-        if self.button1active:
+        if self.button_active:
+            logging.debug("ignoring due to active button")
             return
 
         # wait until button is released
@@ -597,8 +596,8 @@ class Photobooth:
 
         # ignore buttons enqueued during processing
         # so there is a max. frequency of 1 buttonclick per second
-        if (time_now - self.time_stamp_button1) >= 1:
-            self.button1active = True
+        if (time_now - self.time_stamp_button) >= 1:
+            self.button_active = True
             try:
                 # from state start -> choose layout 1
                 if self.state == "Start":
@@ -611,18 +610,18 @@ class Photobooth:
                 self.Button1()
             finally:
                 logging.debug("self.button1 ready -> Set new TimeStamp")
-                self.time_stamp_button1 = time.time()
-                self.button1active = False
-                self.button2active = False
+                self.time_stamp_button = time.time()
+                self.button_active = False
         else:
             logging.debug("ignoring button")        
 
     # Button2 callback function. Actions depends on state of the Photobooth state machine
     def Button2pressed(self, event):
-        logging.debug(f"Button2pressed, active = {self.button2active}")
+        logging.debug(f"Button2pressed, active = {self.button_active}")
         time_now = time.time()
 
-        if self.button2active:
+        if self.button_active:
+            logging.debug("ignoring due to active button")
             return
 
         # wait until button is released
@@ -639,8 +638,8 @@ class Photobooth:
 
         # ignore buttons enqueued during processing
         # so there is a max. frequency of 1 buttonclick per second
-        if (time_now - self.time_stamp_button2) >= 1:
-            self.button2active = True
+        if (time_now - self.time_stamp_button) >= 1:
+            self.button_active = True
             try:
                 # from state start -> choose layout 2
                 if self.state == "Start":
@@ -658,17 +657,14 @@ class Photobooth:
                     if self.photonumber > self.MaxPhotos:
                         logging.debug("maxpics")
                         self.MaxPics()
-                        logging.debug("self.button2 ready -> Set new TimeStamp")
-                        self.time_stamp_button2 = time.time()
                         return
 
                 logging.debug("self.button2 start")
                 self.Button2()
             finally:
                 logging.debug("self.button2 ready -> Set new TimeStamp")
-                self.time_stamp_button2 = time.time()
-                self.button1active = False
-                self.button2active = False
+                self.time_stamp_button = time.time()
+                self.button_active = False
         else:
             logging.debug("ignoring button")        
 
@@ -747,8 +743,7 @@ class Photobooth:
 
     # Start State -> Show initail Screen
     def on_enter_Start(self):
-        self.button1active = False
-        self.button2active = False
+        self.button_active = False
         
         logging.debug("now on_enter_Start")
         self.overlay_screen_blackbackground = self.overlay_image(self.screen_black, 0, 2)
