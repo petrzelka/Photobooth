@@ -3,6 +3,7 @@
 import os
 import pyudev
 import psutil
+import sys
 
 from PIL import Image  # image manipulation for Overlay
 import time  # timing
@@ -1197,9 +1198,13 @@ def main():
     if not os.path.exists(loggingfolder):
         os.mkdir(loggingfolder)
 
+    file_handler = logging.FileHandler(filename=loggingfolder + log_filename + ".log")
+    stdout_handler = logging.StreamHandler(sys.stdout)
+    handlers = [file_handler, stdout_handler]
+
     # logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.DEBUG, filename=REAL_PATH+"/test.log")
     logging.basicConfig(format='%(asctime)s-%(module)s-%(funcName)s:%(lineno)d - %(message)s', level=logging.DEBUG,
-                        filename=loggingfolder + log_filename + ".log")
+                        handlers=handlers)
     logging.info("info message")
     logging.debug("debug message")
 
