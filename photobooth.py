@@ -878,7 +878,7 @@ class Photobooth:
         # copy card to photo folder
         if self.PhotoCopyPath is not None:
             logging.debug("Copy Card to USB Drive")
-            shutil.copy2(str(self.cardfilename), str(self.PhotoCopyPath))
+            shutil.copyfile(str(self.cardfilename), os.path.join(str(self.PhotoCopyPath), os.path.basename(str(self.cardfilename))))
 
     def on_exit_ShowCard(self):
         logging.debug("now on_exit_ShowCard")
