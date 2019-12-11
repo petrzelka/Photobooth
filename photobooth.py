@@ -915,6 +915,7 @@ class Photobooth:
             # use first printer
             logging.debug("Printer Name: " + printername[0])
             conn.enablePrinter(printername[0])
+            conn.cancelAllJobs(printername[0], my_jobs=False, purge_jobs=True)
     
             # check printer state
             printerstate = conn.getPrinterAttributes(printername[0], requested_attributes=["printer-state-message"])
@@ -922,7 +923,6 @@ class Photobooth:
             # if printer in error state ->
             if str(printerstate).find("error:") > 0:
                 logging.debug(str(printerstate))
-                conn.cancelAllJobs(printername[0], my_jobs=True, purge_jobs=True)
                 if str(printerstate).find("06") > 0:
                     logging.debug("goto refill ink")
                     self.InkEmpty()
