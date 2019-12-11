@@ -1006,6 +1006,8 @@ class Photobooth:
         logging.debug("now on_enter_Restart")
         logging.debug("restart Camera")
 
+        os.system("clear > /dev/tty1")
+
         self.camera.close()
 
         # Setup Camera
