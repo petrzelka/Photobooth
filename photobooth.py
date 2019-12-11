@@ -25,8 +25,6 @@ REAL_PATH = os.path.dirname(os.path.realpath(__file__))
 """
 Class containing the single Photos
 """
-
-
 class PictureOnCard:
 
     # init method
@@ -140,8 +138,6 @@ class PictureOnCard:
 """
 class containing the photo card
 """
-
-
 class PhotoCard:
 
     # init method
@@ -277,8 +273,6 @@ class PhotoCard:
 """
 Class controlling the photobooth
 """
-
-
 class Photobooth:
     # define state machine for taking photos
     FSMstates = ['PowerOn', 'Start', 'CountdownPhoto', 'TakePhoto', 'ShowPhoto', 'CreateCard', 'ShowCard', 'PrintCard',
@@ -711,9 +705,15 @@ class Photobooth:
         # get the filename also for later use
         self.lastfilename = self.layout[self.current_Layout - 1].picture[photo_number - 1].fileName
 
+        self.camera.hflip = False
+        self.camera.vflip = False
+
         ## take a picture
         self.camera.capture(self.lastfilename)
         logging.debug("Photo (" + str(photo_number) + ") saved: " + self.lastfilename)
+
+        self.camera.hflip = self.flip_screen_h
+        self.camera.vflip = self.flip_screen_v
 
     # Power On Check State
     # check if printer is connected and turned on
