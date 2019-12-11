@@ -890,8 +890,14 @@ class Photobooth:
     def on_enter_PrintCard(self):
         logging.debug("now on_enter_PrintCard")
         # restart camera
+
+        self.overlay_screen_black = self.overlay_image(self.screen_black, 0, 5)
+        self.overlay_wait = self.overlay_image_transparency(self.screen_wait, 0, 7)
+
         self.stoppreview()
         self.startpreview()
+
+        self.remove_overlay(self.overlay_screen_black)
 
         if self.printPicsEnable == False:
             logging.debug("print enable = false")
@@ -974,6 +980,7 @@ class Photobooth:
         self.PrintDone()
 
     def on_exit_PrintCard(self):
+        self.remove_overlay(self.overlay_wait)
         logging.debug("now on_exit_PrintCard")
 
     # show refill paper instructions
