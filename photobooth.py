@@ -6,6 +6,7 @@ import psutil
 import sys
 
 from PIL import Image  # image manipulation for Overlay
+from PIL import ImageEnhance
 import time  # timing
 import picamera  # camera driver
 import shutil  # file io access like copy
@@ -17,6 +18,7 @@ import configparser  # parsing config file
 import logging  # logging functions
 import cups  # connection to cups printer driver
 import usb  # check if printer is connected and turned on
+from io import BytesIO
 from wand.image import Image as image  # image manipulation lib
 
 # get the real path of the script
@@ -490,12 +492,19 @@ class Photobooth:
                                                   self.config.get("Paths", "screen_path", fallback="Screens/"))
         self.pin_button_left = int(self.config.get("InOut", "pin_button_left", fallback="23"))
         self.pin_button_right = int(self.config.get("InOut", "pin_button_right", fallback="24"))
+        
         self.photo_w = int(self.config.get("Resolution", "photo_w", fallback="3280"))
         self.photo_h = int(self.config.get("Resolution", "photo_h", fallback="2464"))
         self.screen_w = int(self.config.get("Resolution", "screen_w", fallback="1024"))
         self.screen_h = int(self.config.get("Resolution", "screen_h", fallback="600"))
         self.flip_screen_h = self.config.getboolean("Resolution", "flip_screen_h", fallback=False)
         self.flip_screen_v = self.config.getboolean("Resolution", "flip_screen_v", fallback=False)
+
+        self.e_brightness = float(self.config.get("Enhance", "brightness", fallback="1.0"))
+        self.e_contrast = float(self.config.get("Enhance", "contrast", fallback="1.2"))
+        self.e_color = float(self.config.get("Enhance", "color", fallback="1.2"))
+        self.e_sharpness = float(self.config.get("Enhance", "sharpness", fallback="1.5"))
+
         self.screen_turnOnPrinter = os.path.join(self.screens_abs_file_path,
                                                  self.config.get("Screens", "screen_turn_on_printer",
                                                                  fallback="ScreenTurnOnPrinter.png"))
@@ -709,11 +718,36 @@ class Photobooth:
         self.camera.vflip = False
 
         ## take a picture
-        self.camera.capture(self.lastfilename)
-        logging.debug("Photo (" + str(photo_number) + ") saved: " + self.lastfilename)
+        stream = BytesIO()
+        self.camera.capture(stream, format='jpeg')
 
         self.camera.hflip = self.flip_screen_h
         self.camera.vflip = self.flip_screen_v
+
+        self.overlay_wait = self.overlay_image_transparency(self.screen_wait, 0, 7)
+        stream.seek(0)
+        img = Image.open(stream)
+
+        logging.debug("enhancing Brightness")
+        bright = ImageEnhance.Brightness(img)
+        img = bright.enhance(self.e_brightness)
+
+        logging.debug("enhancing Contrast")
+        contrast = ImageEnhance.Contrast(img)
+        img = contrast.enhance(self.e_contrast)
+
+        logging.debug("enhancing Color")
+        color = ImageEnhance.Color(img)
+        img = color.enhance(self.e_color)
+
+        logging.debug("enhancing Sharpness")
+        sharp = ImageEnhance.Sharpness(img)
+        img = sharp.enhance(self.e_sharpness)
+
+        img.save(self.lastfilename, "JPEG", quality=90)
+        logging.debug("Photo (" + str(photo_number) + ") saved: " + self.lastfilename)
+
+        self.remove_overlay(self.overlay_wait)
 
     # Power On Check State
     # check if printer is connected and turned on
