@@ -727,6 +727,7 @@ class Photobooth:
         self.overlay_wait = self.overlay_image_transparency(self.screen_wait, 0, 7)
         stream.seek(0)
         img = Image.open(stream)
+        exif = img.info['exif']
 
         logging.debug("enhancing Brightness")
         bright = ImageEnhance.Brightness(img)
@@ -744,7 +745,7 @@ class Photobooth:
         sharp = ImageEnhance.Sharpness(img)
         img = sharp.enhance(self.e_sharpness)
 
-        img.save(self.lastfilename, "JPEG", quality=90)
+        img.save(self.lastfilename, "JPEG", quality=90, exif=exif)
         logging.debug("Photo (" + str(photo_number) + ") saved: " + self.lastfilename)
 
         self.remove_overlay(self.overlay_wait)
