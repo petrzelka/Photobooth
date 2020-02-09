@@ -630,6 +630,10 @@ class Photobooth:
         # wait until button is released
         while not GPIO.input(self.pin_button_right):
             time.sleep(0.1)
+            # if button pressed longer than 5 sec -> shutdown
+            if (time.time() - time_now) > 5:
+                subprocess.call("sudo reboot", shell=True)
+                return
 
         # if in PowerOnState - ignore Buttons
         if self.state == "PowerOn":
