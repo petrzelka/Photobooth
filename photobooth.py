@@ -733,21 +733,25 @@ class Photobooth:
         img = Image.open(stream)
         exif = img.info['exif']
 
-        logging.debug("enhancing Brightness")
-        bright = ImageEnhance.Brightness(img)
-        img = bright.enhance(self.e_brightness)
+        if self.e_brightness != 1.0:
+            logging.debug("enhancing Brightness")
+            bright = ImageEnhance.Brightness(img)
+            img = bright.enhance(self.e_brightness)
 
-        logging.debug("enhancing Contrast")
-        contrast = ImageEnhance.Contrast(img)
-        img = contrast.enhance(self.e_contrast)
+        if self.e_contrast != 1.0:
+            logging.debug("enhancing Contrast")
+            contrast = ImageEnhance.Contrast(img)
+            img = contrast.enhance(self.e_contrast)
 
-        logging.debug("enhancing Color")
-        color = ImageEnhance.Color(img)
-        img = color.enhance(self.e_color)
+        if self.e_color != 1.0:
+            logging.debug("enhancing Color")
+            color = ImageEnhance.Color(img)
+            img = color.enhance(self.e_color)
 
-        logging.debug("enhancing Sharpness")
-        sharp = ImageEnhance.Sharpness(img)
-        img = sharp.enhance(self.e_sharpness)
+        if self.e_sharpness != 1.0:
+            logging.debug("enhancing Sharpness")
+            sharp = ImageEnhance.Sharpness(img)
+            img = sharp.enhance(self.e_sharpness)
 
         img.save(self.lastfilename, "JPEG", quality=90, exif=exif)
         logging.debug("Photo (" + str(photo_number) + ") saved: " + self.lastfilename)
