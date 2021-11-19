@@ -301,7 +301,8 @@ class Photobooth:
 
         if not self.CheckPrinter():
             logging.debug("no printer found")
-            self.overlay_screen_turnOnPrinter = self.overlay_image(self.screen_turnOnPrinter, True, 0, 3)
+            if self.overlay_screen_turnOnPrinter == -1:
+                self.overlay_screen_turnOnPrinter = self.overlay_image(self.screen_turnOnPrinter, True, 0, 3)
 
             while not self.CheckPrinter():
                 time.sleep(2)
